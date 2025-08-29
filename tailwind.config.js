@@ -1,19 +1,16 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: [
-    './pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './components/**/*.{js,ts,jsx,tsx,mdx}',
-    './app/**/*.{js,ts,jsx,tsx,mdx}',
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
       colors: {
-        'landvest-green': '#166534',
-        'landvest-gold': '#EAB308',
-      },
-      fontFamily: {
-        'sans': ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-      },
+        'brand-green': '#10b981',
+        'brand-blue': '#3b82f6',
+        'brand-gold': '#f59e0b'
+      }
     },
   },
   plugins: [],
