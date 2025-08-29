@@ -7,7 +7,9 @@ import {
   CheckCircle, Building2, Zap, Filter, Eye, Star, Home, Trees, 
   Building, Briefcase, ChevronDown, Menu, X, Bell, User, 
   Calendar, DollarSign, FileText, Award, Target, Sparkles,
-  ChevronRight, Globe, Lock, Unlock, Database, Brain, Clock
+  ChevronRight, Globe, Lock, Unlock, Database, Brain, Clock,
+  Heart, Layers, BookOpen, Factory, Landmark, Mountain, HelpCircle,
+  Share2, Wheat, PoundSterling, Euro, Banknote
 } from 'lucide-react';
 
 // Dynamically import map component to avoid SSR issues
@@ -23,6 +25,71 @@ export default function Home() {
   const [priceRange, setPriceRange] = useState([50000, 1000000]);
   const [planningFilter, setPlanningFilter] = useState('all');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  // New state for enhanced features
+  const [userMode, setUserMode] = useState('beginner'); // 'beginner' or 'advanced'
+  const [selectedCurrency, setSelectedCurrency] = useState('GBP');
+  const [selectedLandTypes, setSelectedLandTypes] = useState<string[]>([]);
+  const [favorites, setFavorites] = useState<number[]>([]);
+  const [compareList, setCompareList] = useState<number[]>([]);
+  const [showInternational, setShowInternational] = useState(false);
+
+  // Currency conversion rates
+  const currencyRates = {
+    GBP: 1,
+    USD: 1.27,
+    EUR: 1.16,
+    CNY: 9.13,
+    AED: 4.67,
+    HKD: 9.92,
+    SGD: 1.71
+  };
+
+  // Land type definitions
+  const landTypes = [
+    {
+      id: 'development',
+      name: 'Development Land',
+      icon: Building2,
+      description: 'Ready with planning permission',
+      color: 'from-blue-400 to-blue-600'
+    },
+    {
+      id: 'strategic',
+      name: 'Strategic Land',
+      icon: Target,
+      description: 'Future development potential',
+      color: 'from-purple-400 to-purple-600'
+    },
+    {
+      id: 'agricultural',
+      name: 'Agricultural Land',
+      icon: Trees,
+      description: 'Farming and future potential',
+      color: 'from-green-400 to-green-600'
+    },
+    {
+      id: 'brownfield',
+      name: 'Brownfield Sites',
+      icon: Factory,
+      description: 'Former industrial land',
+      color: 'from-orange-400 to-orange-600'
+    },
+    {
+      id: 'structures',
+      name: 'Land with Structures',
+      icon: Landmark,
+      description: 'Barns and conversion opportunities',
+      color: 'from-indigo-400 to-indigo-600'
+    },
+    {
+      id: 'greenfield',
+      name: 'Greenfield Land',
+      icon: Mountain,
+      description: 'Undeveloped countryside',
+      color: 'from-emerald-400 to-emerald-600'
+    }
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,10 +99,88 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Helper functions for new features
+  const convertPrice = (priceInGBP: number) => {
+    const converted = priceInGBP * currencyRates[selectedCurrency as keyof typeof currencyRates];
+    const symbols: Record<string, string> = {
+      GBP: '£',
+      USD: '$',
+      EUR: '€',
+      CNY: '¥',
+      AED: 'AED',
+      HKD: 'HK$',
+      SGD: 'S$'
+    };
+    return `${symbols[selectedCurrency]}${converted.toLocaleString()}`;
+  };
+
+  const toggleFavorite = (id: number) => {
+    setFavorites(prev => 
+      prev.includes(id) 
+        ? prev.filter(fId => fId !== id)
+        : [...prev, id]
+    );
+  };
+
+  const toggleCompare = (id: number) => {
+    setCompareList(prev => {
+      if (prev.includes(id)) {
+        return prev.filter(cId => cId !== id);
+      }
+      if (prev.length < 3) {
+        return [...prev, id];
+      }
+      alert('You can compare up to 3 properties');
+      return prev;
+    });
+  };
+
+  const toggleLandType = (typeId: string) => {
+    setSelectedLandTypes(prev =>
+      prev.includes(typeId)
+        ? prev.filter(t => t !== typeId)
+        : [...prev, typeId]
+    );
+  };
+
+  // Enhanced properties with more details
   const properties = [
-    { id: 1, title: 'Prime Development Land - Digbeth', price: '£450,000', size: '2.3 acres', planningStatus: 'Outline Approved', growth: '+18%' },
-    { id: 2, title: 'Investment Opportunity - Jewellery Quarter', price: '£280,000', size: '1.1 acres', planningStatus: 'Pre-Application', growth: '+22%' },
-    { id: 3, title: 'Commercial Plot - Birmingham Business Park', price: '£750,000', size: '4.7 acres', planningStatus: 'Full Permission', growth: '+15%' },
+    { 
+      id: 1, 
+      title: 'Prime Development Land - Digbeth', 
+      price: 450000, 
+      size: '2.3 acres', 
+      planningStatus: 'Outline Approved', 
+      growth: '+18%',
+      landType: 'development',
+      roi: '287%',
+      views: 234,
+      enquiries: 12
+    },
+    { 
+      id: 2, 
+      title: 'Agricultural Investment - Jewellery Quarter', 
+      price: 280000, 
+      size: '1.1 acres', 
+      planningStatus: 'Pre-Application', 
+      growth: '+22%',
+      landType: 'agricultural',
+      roi: '195%',
+      views: 156,
+      enquiries: 8
+    },
+    { 
+      id: 3, 
+      title: 'Brownfield Site - Birmingham Business Park', 
+      price: 750000, 
+      size: '4.7 acres', 
+      planningStatus: 'Full Permission', 
+      growth: '+15%',
+      landType: 'brownfield',
+      roi: '342%',
+      views: 445,
+      enquiries: 23
+    },
   ];
 
   return (
@@ -63,6 +208,57 @@ export default function Home() {
               <a href="#map" className="text-gray-300 hover:text-yellow-400 transition-colors font-medium">Search Land</a>
               <a href="#planning" className="text-gray-300 hover:text-yellow-400 transition-colors font-medium">Planning AI</a>
               <a href="#pricing" className="text-gray-300 hover:text-yellow-400 transition-colors font-medium">Pricing</a>
+              
+              {/* User Mode Toggle */}
+              <div className="flex items-center bg-black/30 rounded-lg p-1">
+                <button
+                  onClick={() => setUserMode('beginner')}
+                  className={`px-3 py-1 rounded text-sm font-medium transition-all ${
+                    userMode === 'beginner' 
+                      ? 'bg-yellow-400 text-black' 
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <BookOpen className="w-4 h-4 inline mr-1" />
+                  Beginner
+                </button>
+                <button
+                  onClick={() => setUserMode('advanced')}
+                  className={`px-3 py-1 rounded text-sm font-medium transition-all ${
+                    userMode === 'advanced' 
+                      ? 'bg-yellow-400 text-black' 
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <Zap className="w-4 h-4 inline mr-1" />
+                  Advanced
+                </button>
+              </div>
+
+              {/* Currency Selector */}
+              <select 
+                value={selectedCurrency}
+                onChange={(e) => setSelectedCurrency(e.target.value)}
+                className="bg-black/30 text-white border border-white/20 rounded-lg px-3 py-1 text-sm focus:border-yellow-400 transition"
+              >
+                <option value="GBP">£ GBP</option>
+                <option value="USD">$ USD</option>
+                <option value="EUR">€ EUR</option>
+                <option value="CNY">¥ CNY</option>
+                <option value="AED">AED</option>
+                <option value="HKD">HK$</option>
+                <option value="SGD">S$ SGD</option>
+              </select>
+
+              {/* Favorites Counter */}
+              {favorites.length > 0 && (
+                <button className="relative p-2 text-gray-300 hover:text-yellow-400">
+                  <Heart className="w-5 h-5" />
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {favorites.length}
+                  </span>
+                </button>
+              )}
               
               {isLoggedIn ? (
                 <div className="flex items-center space-x-4">
@@ -174,6 +370,81 @@ export default function Home() {
           </div>
         </div>
       </section>
+      
+      {/* Land Type Selection Section - NEW */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 relative">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="text-4xl font-black text-white mb-4">
+              Choose Your <span className="gradient-text">Investment Type</span>
+            </h2>
+            <p className="text-xl text-gray-300 mb-2">
+              {userMode === 'beginner' 
+                ? "Select the type of land you're interested in (we'll guide you through each option)"
+                : "Filter by specific land categories for targeted investment opportunities"
+              }
+            </p>
+            {userMode === 'beginner' && (
+              <p className="text-sm text-yellow-400 mt-2">
+                💡 Tip: Hover over each option to learn more
+              </p>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+            {landTypes.map((type) => {
+              const Icon = type.icon;
+              const isSelected = selectedLandTypes.includes(type.id);
+              
+              return (
+                <button
+                  key={type.id}
+                  onClick={() => toggleLandType(type.id)}
+                  className={`group relative p-6 rounded-xl transition-all duration-300 hover-lift ${
+                    isSelected 
+                      ? 'premium-card ring-2 ring-yellow-400' 
+                      : 'glass hover:bg-white/10'
+                  }`}
+                >
+                  <div className={`w-12 h-12 rounded-lg bg-gradient-to-r ${type.color} mb-3 mx-auto flex items-center justify-center`}>
+                    <Icon className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="font-bold text-white text-sm mb-1">{type.name}</h3>
+                  <p className="text-xs text-gray-400">{type.description}</p>
+                  
+                  {isSelected && (
+                    <div className="absolute top-2 right-2">
+                      <CheckCircle className="w-5 h-5 text-yellow-400" />
+                    </div>
+                  )}
+                  
+                  {userMode === 'beginner' && (
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 p-3 bg-black/90 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 w-48">
+                      <p className="text-xs text-white">{type.description}</p>
+                      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-black/90"></div>
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {selectedLandTypes.length > 0 && (
+            <div className="text-center">
+              <p className="text-sm text-gray-400 mb-2">
+                Filtering by {selectedLandTypes.length} land type{selectedLandTypes.length > 1 ? 's' : ''}
+              </p>
+              <button 
+                onClick={() => setSelectedLandTypes([])}
+                className="text-yellow-400 hover:text-yellow-300 text-sm font-medium"
+              >
+                Clear Selection
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
+      
       {/* Interactive Map Search Section */}
       <section id="map" className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
@@ -253,30 +524,109 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Property Cards */}
+            {/* Property Cards - Enhanced */}
             <div className="space-y-4">
-              <h3 className="text-xl font-bold text-white mb-4">Featured Properties</h3>
-              {properties.map((property, index) => (
-                <div 
-                  key={property.id}
-                  className="premium-card rounded-xl p-4 cursor-pointer hover-lift"
-                  style={{animationDelay: `${index * 0.1}s`}}
-                >
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <h4 className="font-bold text-white">{property.title}</h4>
-                      <p className="text-sm text-gray-400">{property.size}</p>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-white">Featured Properties</h3>
+                {compareList.length > 0 && (
+                  <button className="text-sm bg-yellow-400/20 text-yellow-400 px-3 py-1 rounded-full">
+                    Compare ({compareList.length})
+                  </button>
+                )}
+              </div>
+              
+              {properties.map((property, index) => {
+                const landType = landTypes.find(t => t.id === property.landType);
+                const Icon = landType?.icon || Building2;
+                const isFavorite = favorites.includes(property.id);
+                const isComparing = compareList.includes(property.id);
+                
+                return (
+                  <div 
+                    key={property.id}
+                    className={`premium-card rounded-xl p-4 hover-lift relative ${
+                      isComparing ? 'ring-2 ring-yellow-400' : ''
+                    }`}
+                    style={{animationDelay: `${index * 0.1}s`}}
+                  >
+                    {/* Action Buttons */}
+                    <div className="absolute top-2 right-2 flex gap-2">
+                      <button
+                        onClick={() => toggleFavorite(property.id)}
+                        className={`p-1.5 rounded-lg transition-all ${
+                          isFavorite 
+                            ? 'bg-red-500 text-white' 
+                            : 'glass text-gray-400 hover:text-red-400'
+                        }`}
+                      >
+                        <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
+                      </button>
+                      <button
+                        onClick={() => toggleCompare(property.id)}
+                        className={`p-1.5 rounded-lg transition-all ${
+                          isComparing
+                            ? 'bg-yellow-400 text-black'
+                            : 'glass text-gray-400 hover:text-yellow-400'
+                        }`}
+                      >
+                        <Layers className="w-4 h-4" />
+                      </button>
+                      <button className="p-1.5 glass text-gray-400 hover:text-white rounded-lg">
+                        <Share2 className="w-4 h-4" />
+                      </button>
                     </div>
-                    <span className="text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded-full">
-                      {property.growth}
-                    </span>
+                    
+                    {/* Land Type Badge */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className={`w-8 h-8 rounded-lg bg-gradient-to-r ${landType?.color} flex items-center justify-center`}>
+                        <Icon className="w-4 h-4 text-white" />
+                      </div>
+                      <span className="text-xs text-gray-400">{landType?.name}</span>
+                    </div>
+                    
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h4 className="font-bold text-white pr-20">{property.title}</h4>
+                        <p className="text-sm text-gray-400">{property.size}</p>
+                      </div>
+                      <span className="text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded-full">
+                        {property.growth}
+                      </span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-2xl font-bold gradient-text">
+                        {convertPrice(property.price)}
+                      </span>
+                      <span className="text-xs text-gray-400">{property.planningStatus}</span>
+                    </div>
+                    
+                    {/* Additional Stats */}
+                    <div className="flex items-center justify-between text-xs text-gray-500">
+                      <div className="flex items-center gap-3">
+                        <span className="flex items-center gap-1">
+                          <Eye className="w-3 h-3" />
+                          {property.views}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Users className="w-3 h-3" />
+                          {property.enquiries}
+                        </span>
+                      </div>
+                      <span className="text-yellow-400 font-medium">
+                        ROI: {property.roi}
+                      </span>
+                    </div>
+                    
+                    {userMode === 'beginner' && (
+                      <button className="mt-3 w-full py-2 glass text-yellow-400 rounded-lg text-xs hover:bg-white/10 flex items-center justify-center gap-1">
+                        <HelpCircle className="w-3 h-3" />
+                        Learn about this investment
+                      </button>
+                    )}
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-2xl font-bold gradient-text">{property.price}</span>
-                    <span className="text-xs text-gray-400">{property.planningStatus}</span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
@@ -393,6 +743,119 @@ export default function Home() {
           </div>
         </div>
       </section>
+      
+      {/* International Investors Section - NEW */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 relative">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/20 rounded-full mb-4">
+              <Globe className="w-5 h-5 text-blue-400" />
+              <span className="text-blue-400 font-bold">International Investors Welcome</span>
+            </div>
+            <h2 className="text-5xl font-black text-white mb-4">
+              Join <span className="gradient-text">Global Investors</span> in UK Land
+            </h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              40% of UK land investments come from overseas. Full foreign ownership rights, no residency required.
+            </p>
+          </div>
+
+          {/* Key Markets Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-12">
+            <div className="glass rounded-xl p-4 text-center hover-lift">
+              <span className="text-2xl mb-2 block">🇨🇳</span>
+              <p className="text-sm text-gray-400">China</p>
+              <p className="text-xl font-bold gradient-text">£13B/year</p>
+            </div>
+            <div className="glass rounded-xl p-4 text-center hover-lift">
+              <span className="text-2xl mb-2 block">🇦🇪</span>
+              <p className="text-sm text-gray-400">UAE</p>
+              <p className="text-xl font-bold gradient-text">£8B/year</p>
+            </div>
+            <div className="glass rounded-xl p-4 text-center hover-lift">
+              <span className="text-2xl mb-2 block">🇸🇬</span>
+              <p className="text-sm text-gray-400">Singapore</p>
+              <p className="text-xl font-bold gradient-text">£5B/year</p>
+            </div>
+            <div className="glass rounded-xl p-4 text-center hover-lift">
+              <span className="text-2xl mb-2 block">🇺🇸</span>
+              <p className="text-sm text-gray-400">USA</p>
+              <p className="text-xl font-bold gradient-text">£4B/year</p>
+            </div>
+            <div className="glass rounded-xl p-4 text-center hover-lift">
+              <span className="text-2xl mb-2 block">🇭🇰</span>
+              <p className="text-sm text-gray-400">Hong Kong</p>
+              <p className="text-xl font-bold gradient-text">£3B/year</p>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* 100% Ownership */}
+            <div className="premium-card rounded-xl p-6 hover-lift">
+              <Shield className="w-12 h-12 text-yellow-400 mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">100% Foreign Ownership</h3>
+              <p className="text-gray-300 mb-4">
+                No restrictions on foreign ownership of UK land
+              </p>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-400" />
+                  Full freehold rights
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-400" />
+                  No residency requirements
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-400" />
+                  Protected by UK law
+                </li>
+              </ul>
+            </div>
+
+            {/* Multi-Currency Support */}
+            <div className="premium-card rounded-xl p-6 hover-lift">
+              <Banknote className="w-12 h-12 text-yellow-400 mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">Multi-Currency Platform</h3>
+              <p className="text-gray-300 mb-4">
+                View prices and transact in your preferred currency
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs">GBP</span>
+                <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs">USD</span>
+                <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-xs">EUR</span>
+                <span className="px-3 py-1 bg-red-500/20 text-red-400 rounded-full text-xs">CNY</span>
+                <span className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-xs">AED</span>
+                <span className="px-3 py-1 bg-indigo-500/20 text-indigo-400 rounded-full text-xs">HKD</span>
+              </div>
+            </div>
+
+            {/* Tax & Legal Support */}
+            <div className="premium-card rounded-xl p-6 hover-lift">
+              <FileText className="w-12 h-12 text-yellow-400 mb-4" />
+              <h3 className="text-xl font-bold text-white mb-2">Complete Support</h3>
+              <p className="text-gray-300 mb-4">
+                Tax guidance and legal support for international buyers
+              </p>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-400" />
+                  SDLT calculator (+2% surcharge)
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-400" />
+                  UK company formation
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-400" />
+                  Visa investment routes
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+      
       {/* Portfolio Tracking Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
